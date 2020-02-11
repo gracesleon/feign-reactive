@@ -27,6 +27,7 @@ abstract public class BaseReactorTest {
             //spring
             //check fails on server side as MimeTypeUtils$ConcurrentLruCache use this.lock.readLock().lock();
             builder.allowBlockingCallsInside("org.springframework.util.MimeTypeUtils", "parseMimeType");
+            builder.allowBlockingCallsInside("org.springframework.util.MimeTypeUtils", "generateMultipartBoundary");
             //java.io.RandomAccessFile.readBytes
             builder.allowBlockingCallsInside("org.springframework.http.MediaTypeFactory", "parseMimeTypes");
 
