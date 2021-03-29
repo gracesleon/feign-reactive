@@ -49,24 +49,24 @@ abstract public class RetryPublisherHttpClient implements PublisherHttpClient {
     this.retryFunction = wrapWithLog(retryFunction, feignMethodTag);
   }
 
-  protected Function<Flux<Retry.RetrySignal>, Flux<Throwable>> wrapWithOutOfRetries(
-          Function<Flux<Retry.RetrySignal>, Flux<Throwable>> retryFunction,
-          ReactiveHttpRequest request){
-     return signalFlux -> retryFunction.apply(signalFlux)
-             .onErrorResume(throwable -> Mono.just(new OutOfRetriesWrapper(throwable, request)))
-             .zipWith(Flux.range(1, Integer.MAX_VALUE), (throwable, index) -> {
-               if(throwable instanceof OutOfRetriesWrapper){
-                 if(index == 1){
-                   throw Exceptions.propagate(throwable.getCause());
-                 } else {
-                   logger.error("[{}]---> USED ALL RETRIES", feignMethodTag, throwable);
-                   throw Exceptions.propagate(new OutOfRetriesException(throwable.getCause(), request));
-                 }
-               } else {
-                 return throwable;
-               }
-             });
-  }
+//  protected Function<Flux<Retry.RetrySignal>, Flux<Throwable>> wrapWithOutOfRetries(
+//          Function<Flux<Retry.RetrySignal>, Flux<Throwable>> retryFunction,
+//          ReactiveHttpRequest request){
+//     return signalFlux -> retryFunction.apply(signalFlux)
+//             .onErrorResume(throwable -> Mono.just(new OutOfRetriesWrapper(throwable, request)))
+//             .zipWith(Flux.range(1, Integer.MAX_VALUE), (throwable, index) -> {
+//               if(throwable instanceof OutOfRetriesWrapper){
+//                 if(index == 1){
+//                   throw Exceptions.propagate(throwable.getCause());
+//                 } else {
+//                   logger.error("[{}]---> USED ALL RETRIES", feignMethodTag, throwable);
+//                   throw Exceptions.propagate(new OutOfRetriesException(throwable.getCause(), request));
+//                 }
+//               } else {
+//                 return throwable;
+//               }
+//             });
+//  }
 
   protected static Function<Flux<Retry.RetrySignal>, Flux<Throwable>> wrapWithLog(
           Function<Flux<Retry.RetrySignal>, Flux<Throwable>> retryFunction,
