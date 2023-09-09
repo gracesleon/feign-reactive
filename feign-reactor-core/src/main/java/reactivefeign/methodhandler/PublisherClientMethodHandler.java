@@ -398,7 +398,7 @@ public class PublisherClientMethodHandler implements MethodHandler {
             chunks.add(data -> {
                 Object substitution = data.placeholderToSubstitution.get(placeholder);
                 if (substitution != null) {
-                    return UriUtils.encode(substitution.toString(), UTF_8);
+                    return UriUtils.encode(substitution.toString(), UTF_8, false);
                 } else {
                     throw new IllegalArgumentException("No substitution in url for:"+placeholder);
                 }

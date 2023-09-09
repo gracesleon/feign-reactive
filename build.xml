@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project basedir="." default="help" name="feign-reactor">
+	<taskdef resource="net/sf/antcontrib/antcontrib.properties" />
+	<property environment="env" />
+	<property name="maven.home" value="${env.MSS_MAVEN_HOME}" />
+	<property name="developmentVersion" value="0.0.1-SNAPSHOT" />
+	<property name="developmentProfiles" value="active: dev" />
+	<!-- - - - - - - - - - - - - - - - - -
+    property: 打包参数
+    - - - - - - - - - - - - - - - - - -->
+	<property name="releaseVersion" value="3.3.0" />
+	<property name="releaseSvnRevision" value="'HEAD'" />
+	<property name="releaseProfiles" value="active: prod" />
+
+	<property name="svnPrjName" value="leon-parent" />
+	<property name="svnPrjName-release" value="${svnPrjName}-${releaseVersion}" />
+
+
+	<!-- =================================
+    target: project.release
+    ================================= -->
+	<target name="project.release">
+		<!-- 清理target目录 -->
+		<antcall target="mvn.clean" />
+		<!-- 打包 -->
+		<antcall target="project.release:release" />
+	</target>
+
+	<target name="project.release:release">
+		<echo>发布${svnPrjName}: ${svnPrjName-release}</echo>
+
+		<antcall target="mvn.versions:set" />
+
+		<antcall target="mvn.package" />
+	</target>
+
+	<target name="mvn.versions:set">
+		<echo message="设置版本号为: ${releaseVersion}" />
+		<exec executable="${maven.home}\bin\mvn.cmd">
+			<arg line="versions:set -DnewVersion=${releaseVersion}" />
+		</exec>
+	</target>
+
+	<target name="mvn.versions:setDevelopmentVersion">
+		<echo message="设置版本号为: ${developmentVersion}" />
+		<exec executable="${maven.home}\bin\mvn.cmd">
+			<arg line="versions:set -DnewVersion=${developmentVersion}" />
+		</exec>
+	</target>
+
+	<target name="mvn.versions:update-child-modules">
+		<echo message="更新子模块版本号" />
+		<exec executable="${maven.home}\bin\mvn.cmd">
+			<arg line="-N versions:update-child-modules" />
+		</exec>
+	</target>
+
+	<target name="mvn.clean">
+		<echo message="mvn.clean" />
+		<exec executable="${maven.home}\bin\mvn.cmd">
+			<arg line="clean" />
+		</exec>
+	</target>
+
+	<target name="mvn.package">
+		<echo message="打包" />
+		<exec executable="${maven.home}\bin\mvn.cmd">
+			<arg line="clean package -U -Dmaven.test.skip=true" />
+		</exec>
+	</target>
+
+	<target name="mvn.install">
+		<echo message="将jar包发布到本地库中,将会先执行打包(mvn package)的操作" />
+		<exec executable="${maven.home}\bin\mvn.cmd">
+			<arg line="clean install -U -Dmaven.test.skip=true" />
+		</exec>
+	</target>
+
+	<target name="mvn.deploy">
+		<echo message="发布jar包到远程的maven服务器中,### 注意:用户和密码配置在setting.xml中" />
+		<exec executable="${maven.home}\bin\mvn.cmd">
+			<arg line="clean deploy -e -Dmaven.test.skip=true" />
+		</exec>
+	</target>
+
+	<target name="help">
+		<echo message="帮助" />
+	</target>
+</project>
